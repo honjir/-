@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Brainwave VR Experience</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script>
+    AFRAME.registerComponent('content-switcher', {
+      schema: {
+        subjectId: {type: 'string', default: ''}
+      },
+      init: function () {
+        const descriptions = {
+          'sub-061': 'sub-061 (健常者): 健康的で安定。強いアルファ波が脳全体を支配し、思考に関連するベータ波は静か。',
+          'sub-004': 'sub-004 (軽度AD): 不安定でノイズが多い。アルファ波の力が弱まり、ベータ波の活動が相対的に活発。脳がリラックスしきれない状態。',
+          'sub-001': 'sub-001 (重度AD): 活動が単純化・単調化。脳活動の複雑性が失われ、健康的でもなく、かといってダイナミックでもない状態。'
+        };
+
+        this.el.addEventListener('click', () => {
+          const subjectId = this.data.subjectId;
+
+          // Get display elements
+          const brainMap = document.querySelector('#brain-map-display');
+          const brainArt = document.querySelector('#brainwave-art-display');
+          const audioPlayer = document.querySelector('#audio-player');
+          const descriptionDisplay = document.querySelector('#description-display');
+
+          // Stop any currently playing sound
+          if (audioPlayer.components.sound) {
+            audioPlayer.components.sound.stopSound();
+          }
+
+          // Update content
+          brainMap.setAttribute('material', 'src', `#brain-map-${subjectId}`);
+          brainArt.setAttribute('material', 'src', `#brainwave-art-${subjectId}`);
+          descriptionDisplay.setAttribute('text', 'value', descriptions[subjectId]);
+          audioPlayer.setAttribute('sound', `src: #swan-lake-${subjectId}; autoplay: true`);
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <a-scene background="color: #ECECEC" renderer="logarithmicDepthBuffer: true; antialias: true;" light="defaultLightsEnabled: false">
+    <!-- Assets -->
+    <a-assets>
+      <!-- Subject 001 (Severe AD) -->
+      <img id="brain-map-sub-001" src="assets/brain_map_sub-001.png">
+      <img id="brainwave-art-sub-001" src="assets/brainwave_art_sub-001.png">
+      <audio id="swan-lake-sub-001" src="assets/swan_lake_sub-001.mp3" preload="auto"></audio>
+
+      <!-- Subject 004 (Mild AD) -->
+      <img id="brain-map-sub-004" src="assets/brain_map_sub-004.png">
+      <img id="brainwave-art-sub-004" src="assets/brainwave_art_sub-004.png">
+      <audio id="swan-lake-sub-004" src="assets/swan_lake_sub-004.mp3" preload="auto"></audio>
+
+      <!-- Subject 061 (Healthy) -->
+      <img id="brain-map-sub-061" src="assets/brain_map_sub-061.png">
+      <img id="brainwave-art-sub-061" src="assets/brainwave_art_sub-061.png">
+      <audio id="swan-lake-sub-061" src="assets/swan_lake_sub-061.mp3" preload="auto"></audio>
+    </a-assets>
+
+    <!-- Custom Lighting -->
+    <a-entity light="type: ambient; color: #555"></a-entity>
+    <a-entity light="type: directional; color: #FFF; intensity: 0.6" position="-1 1 2"></a-entity>
+
+    <!-- Central Display Area -->
+    <a-entity position="0 1.8 -5">
+        <!-- Title -->
+        <a-entity text="value: Brainwave Interactive Art; align: center; width: 8; color: #333;" position="0 2.2 0"></a-entity>
+
+        <!-- Description Display -->
+        <a-entity id="description-display" position="0 1.5 0" 
+                  text="value: 周囲の箱をクリックすると、ここに脳波の説明が表示されます。; align: center; anchor: center; width: 7; color: #333; wrapCount: 60;">
+        </a-entity>
+
+        <!-- Image Displays - Added anisotropy for sharpness -->
+        <a-plane id="brain-map-display" position="-2 -0.5 0" width="3" height="3" material="shader: standard; transparent: true; src: ''; anisotropy: 16;">
+            <a-text value="Brain Map" align="center" color="#555" position="0 -1.7 0"></a-text>
+        </a-plane>
+        <a-plane id="brainwave-art-display" position="2 -0.5 0" width="3" height="3" material="shader: standard; transparent: true; src: ''; anisotropy: 16;">
+            <a-text value="Brainwave Art" align="center" color="#555" position="0 -1.7 0"></a-text>
+        </a-plane>
+    </a-entity>
+    
+    <a-entity id="audio-player"></a-entity>
+
+    <!-- Switches -->
+    <!-- Switch for sub-061 (Left) -->
+    <a-box id="switch-061" position="-4 1.6 -3" color="#000000" content-switcher="subjectId: sub-061">
+      <a-text value="sub-061\n(Healthy)" align="center" position="0 0 0.51" width="2" color="#FFF"></a-text>
+    </a-box>
+
+    <!-- Switch for sub-004 (Center) -->
+    <a-box id="switch-004" position="0 1.6 -4" color="#000000" content-switcher="subjectId: sub-004">
+      <a-text value="sub-004\n(Mild AD)" align="center" position="0 0 0.51" width="2" color="#FFF"></a-text>
+    </a-box>
+
+    <!-- Switch for sub-001 (Right) -->
+    <a-box id="switch-001" position="4 1.6 -3" color="#000000" content-switcher="subjectId: sub-001">
+      <a-text value="sub-001\n(Severe AD)" align="center" position="0 0 0.51" width="2" color="#FFF"></a-text>
+    </a-box>
+
+    <!-- Camera and Cursor -->
+    <a-entity camera look-controls position="0 1.6 0">
+        <a-entity cursor="fuse: true; fuseTimeout: 500"
+                  position="0 0 -1"
+                  geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                  material="color: black; shader: flat">
+        </a-entity>
+    </a-entity>
+  </a-scene>
+</body>
+</html>
